@@ -557,7 +557,7 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html>
         <div class="w-full nm-sunken-sm p-2 text-center">
           <div class="text-xs text-[#5e7064] flex justify-between px-1">
             <span>Dew Point</span>
-            <span class="font-bold text-sky-600 font-mono">16.4°C</span>
+            <span id="valDewPoint" class="font-bold text-sky-600 font-mono">16.4°C</span>
           </div>
         </div>
       </div>
@@ -1388,6 +1388,17 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html>
       const hVal = Math.round(data.humidity);
       document.getElementById('valHumidity').innerText = hVal;
       document.getElementById('boxFillHumidity').style.height = `${hVal}%`;
+
+      // Dew Point (Magnus-Tetens formula)
+      const a = 17.27;
+      const b = 237.7;
+      const safeH = Math.max(1, Math.min(100, data.humidity));
+      const alpha = ((a * tVal) / (b + tVal)) + Math.log(safeH / 100.0);
+      const dewVal = (b * alpha) / (a - alpha);
+      const dewElem = document.getElementById('valDewPoint');
+      if (dewElem && !isNaN(dewVal)) {
+        dewElem.innerText = `${dewVal.toFixed(1)}°C`;
+      }
 
       // 4. Sunlight
       const lVal = Math.round(data.light.percent);
